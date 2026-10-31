@@ -35,7 +35,9 @@
         {
           "locationWhenInUsePermission": "Motryx uses your location to measure speed and performance runs."
         }
-      ]
+      ],
+      "expo-font",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {
