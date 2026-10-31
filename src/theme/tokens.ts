@@ -80,6 +80,7 @@ export type TextStyleToken = {
 export const typography = {
   hero: { fontSize: 88, lineHeight: 92, fontWeight: '700', letterSpacing: -1 },
   value: { fontSize: 36, lineHeight: 40, fontWeight: '700' },
+  headline: { fontSize: 28, lineHeight: 34, fontWeight: '700' },
   title: { fontSize: 20, lineHeight: 26, fontWeight: '700' },
   body: { fontSize: 16, lineHeight: 22, fontWeight: '400' },
   button: { fontSize: 16, lineHeight: 20, fontWeight: '600' },

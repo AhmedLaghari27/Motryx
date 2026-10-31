@@ -2,7 +2,19 @@ import React from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { useTheme } from '@/theme/ThemeProvider';
 
-export type IconName = 'cockpit' | 'live' | 'diagnostics' | 'garage' | 'settings' | 'alert' | 'inbox';
+export type IconName =
+  | 'cockpit'
+  | 'live'
+  | 'diagnostics'
+  | 'garage'
+  | 'settings'
+  | 'alert'
+  | 'inbox'
+  | 'bluetooth'
+  | 'location'
+  | 'shield'
+  | 'adapter'
+  | 'check';
 
 type Props = { name: IconName; size?: number; color?: string; strokeWidth?: number };
 
@@ -66,6 +78,36 @@ export function Icon({ name, size = 24, color, strokeWidth = 1.8 }: Props) {
           <Path d="M12 10v4M12 17.2v.01" {...common} />
         </>
       );
+      break;
+    case 'bluetooth':
+      shapes = <Path d="M6.5 7.5l11 9-5.5 4.5V3l5.5 4.5-11 9" {...common} />;
+      break;
+    case 'location':
+      shapes = (
+        <>
+          <Path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.6 12 21 12 21z" {...common} />
+          <Circle cx="12" cy="10.5" r="2.3" {...common} />
+        </>
+      );
+      break;
+    case 'shield':
+      shapes = (
+        <>
+          <Path d="M12 3l7 3v5.5c0 4.4-3 7.6-7 9.5-4-1.9-7-5.1-7-9.5V6z" {...common} />
+          <Path d="M9 12l2.2 2.2L15.5 10" {...common} />
+        </>
+      );
+      break;
+    case 'adapter':
+      shapes = (
+        <>
+          <Path d="M5 7h14v6l-2 4H7l-2-4z" {...common} />
+          <Path d="M9.5 10h.01M12 10h.01M14.5 10h.01M12 17v4" {...common} />
+        </>
+      );
+      break;
+    case 'check':
+      shapes = <Path d="M5 12.5l4.5 4.5L19 7.5" {...common} />;
       break;
     case 'inbox':
       shapes = (

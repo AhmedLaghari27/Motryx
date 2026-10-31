@@ -4,11 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/app/routes';
 import { Button, Card, Screen, Text } from '@/components';
+import { PermissionsSection } from '@/features/permissions/PermissionsSection';
+import { useOnboardingStore } from '@/state/onboarding.store';
 import { useTheme } from '@/theme/ThemeProvider';
 import { spacing } from '@/theme/tokens';
 
 export function SettingsScreen() {
   const { mode, setMode } = useTheme();
+  const reopenOnboarding = useOnboardingStore((s) => s.reopen);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
@@ -32,6 +35,14 @@ export function SettingsScreen() {
             style={styles.flex}
           />
         </View>
+      </Card>
+
+      <PermissionsSection />
+
+      <Text variant="title">About</Text>
+      <Card>
+        <Text tone="secondary">Review what Motryx needs, and the safety and privacy notes.</Text>
+        <Button label="Replay welcome" variant="secondary" onPress={() => void reopenOnboarding()} />
       </Card>
 
       {__DEV__ ? (
