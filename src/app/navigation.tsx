@@ -1,12 +1,14 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Icon } from '@/components';
+import { Icon, LoadingState, Screen } from '@/components';
 import { CockpitScreen } from '@/features/cockpit/CockpitScreen';
 import { DiagnosticsScreen } from '@/features/diagnostics/DiagnosticsScreen';
 import { GarageScreen } from '@/features/garage/GarageScreen';
 import { LiveDataScreen } from '@/features/live-data/LiveDataScreen';
+import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
+import { useOnboardingStore } from '@/state/onboarding.store';
 import { useTheme } from '@/theme/ThemeProvider';
 import { HeaderActions } from './HeaderActions';
 import type { RootStackParamList, TabParamList } from './routes';
@@ -58,6 +60,17 @@ function Tabs() {
 
 export function RootNavigator() {
   const { colors } = useTheme();
+  const status = useOnboardingStore((s) => s.status);
+
+  // Brief hold while the saved first-run flag is read, so the intro never flashes for returning users.
+  if (status === 'loading') {
+    return (
+      <Screen>
+        <LoadingState label="Starting Motryx" />
+      </Screen>
+    );
+  }
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -67,11 +80,17 @@ export function RootNavigator() {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
-      <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      {DesignPreviewScreen ? (
-        <Stack.Screen name="DesignPreview" component={DesignPreviewScreen} options={{ title: 'Design system' }} />
-      ) : null}
+      {status === 'needed' ? (
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false, animation: 'fade' }} />
+      ) : (
+        <>
+          <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          {DesignPreviewScreen ? (
+            <Stack.Screen name="DesignPreview" component={DesignPreviewScreen} options={{ title: 'Design system' }} />
+          ) : null}
+        </>
+      )}
     </Stack.Navigator>
   );
 }
