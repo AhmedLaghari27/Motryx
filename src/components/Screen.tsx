@@ -20,6 +20,7 @@ export function Screen({ children, scroll = false, edges = ['left', 'right'], co
         <ScrollView
           contentContainerStyle={[styles.content, contentStyle]}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {children}
         </ScrollView>

@@ -5,6 +5,7 @@ import { Icon, LoadingState, Screen } from '@/components';
 import { CockpitScreen } from '@/features/cockpit/CockpitScreen';
 import { DiagnosticsScreen } from '@/features/diagnostics/DiagnosticsScreen';
 import { GarageScreen } from '@/features/garage/GarageScreen';
+import { VehicleFormScreen } from '@/features/garage/VehicleFormScreen';
 import { LiveDataScreen } from '@/features/live-data/LiveDataScreen';
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
@@ -86,6 +87,11 @@ export function RootNavigator() {
         <>
           <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen
+            name="VehicleForm"
+            component={VehicleFormScreen}
+            options={({ route }) => ({ title: route.params?.vehicleId ? 'Edit vehicle' : 'Add vehicle' })}
+          />
           {DesignPreviewScreen ? (
             <Stack.Screen name="DesignPreview" component={DesignPreviewScreen} options={{ title: 'Design system' }} />
           ) : null}

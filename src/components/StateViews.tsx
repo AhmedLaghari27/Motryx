@@ -12,10 +12,21 @@ type StateProps = {
   message?: string;
   actionLabel?: string;
   onAction?: () => void;
+  secondaryActionLabel?: string;
+  onSecondaryAction?: () => void;
   icon?: IconName;
 };
 
-function StateView({ tone, icon, title, message, actionLabel, onAction }: StateProps & { tone: 'neutral' | 'error' }) {
+function StateView({
+  tone,
+  icon,
+  title,
+  message,
+  actionLabel,
+  onAction,
+  secondaryActionLabel,
+  onSecondaryAction,
+}: StateProps & { tone: 'neutral' | 'error' }) {
   const { colors } = useTheme();
   return (
     <View style={styles.center} accessibilityRole={tone === 'error' ? 'alert' : undefined}>
@@ -37,6 +48,9 @@ function StateView({ tone, icon, title, message, actionLabel, onAction }: StateP
           variant={tone === 'error' ? 'secondary' : 'primary'}
           style={styles.action}
         />
+      ) : null}
+      {secondaryActionLabel && onSecondaryAction ? (
+        <Button label={secondaryActionLabel} onPress={onSecondaryAction} variant="ghost" style={styles.secondary} />
       ) : null}
     </View>
   );
@@ -67,4 +81,5 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.xl },
   centerText: { textAlign: 'center' },
   action: { marginTop: spacing.sm, alignSelf: 'stretch' },
+  secondary: { alignSelf: 'stretch' },
 });

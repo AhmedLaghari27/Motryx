@@ -19,6 +19,7 @@ type Props = {
   disabled?: boolean;
   loading?: boolean;
   accessibilityHint?: string;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -29,6 +30,7 @@ export function Button({
   disabled = false,
   loading = false,
   accessibilityHint,
+  accessibilityLabel,
   style,
 }: Props) {
   const { colors } = useTheme();
@@ -53,7 +55,7 @@ export function Button({
     <Animated.View style={[animated, style]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={label}
+        accessibilityLabel={accessibilityLabel ?? label}
         accessibilityHint={accessibilityHint}
         accessibilityState={{ disabled: inactive, busy: loading }}
         disabled={inactive}

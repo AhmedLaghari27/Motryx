@@ -11,5 +11,6 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
   Settings: undefined;
+  VehicleForm: { vehicleId?: string } | undefined;
   DesignPreview: undefined;
 };
