@@ -53,6 +53,11 @@ export function SettingsScreen() {
             variant="secondary"
             onPress={() => navigation.navigate('DesignPreview')}
           />
+          <Button
+            label="Adapter simulator"
+            variant="secondary"
+            onPress={() => navigation.navigate('AdapterSimulator')}
+          />
         </>
       ) : null}
     </Screen>

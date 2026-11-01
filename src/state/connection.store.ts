@@ -1,13 +1,25 @@
 import { create } from 'zustand';
-import type { ConnectionState } from '@/types/telemetry';
+import type { ConnectionManager } from '@/core/obd/adapter/ConnectionManager';
+import { INITIAL_SNAPSHOT, type ConnectionSnapshot } from '@/core/obd/adapter/connectionMachine';
 
-type ConnectionStore = {
-  state: ConnectionState;
-  setState: (state: ConnectionState) => void;
+type ConnectionStore = ConnectionSnapshot & {
+  /** Mirror a manager's snapshots into the UI. Only one manager is attached at a time. */
+  attach: (manager: ConnectionManager) => void;
+  detach: () => void;
 };
 
-// Placeholder owner of connection state; the Adapter Connection step drives it for real.
+let unsubscribe: (() => void) | null = null;
+
 export const useConnectionStore = create<ConnectionStore>((set) => ({
-  state: 'idle',
-  setState: (state) => set({ state }),
+  ...INITIAL_SNAPSHOT,
+  attach: (manager) => {
+    unsubscribe?.();
+    set(manager.getSnapshot());
+    unsubscribe = manager.subscribe((snapshot) => set(snapshot));
+  },
+  detach: () => {
+    unsubscribe?.();
+    unsubscribe = null;
+    set(INITIAL_SNAPSHOT);
+  },
 }));
