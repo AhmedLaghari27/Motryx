@@ -20,6 +20,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 // Dev-only screen. Required lazily so release builds never register it.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const DesignPreviewScreen: React.ComponentType | null = __DEV__ ? require('@/dev/DesignPreviewScreen').default : null;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const AdapterSimulatorScreen: React.ComponentType | null = __DEV__ ? require('@/dev/AdapterSimulatorScreen').default : null;
 
 function Tabs() {
   const { colors } = useTheme();
@@ -94,6 +96,9 @@ export function RootNavigator() {
           />
           {DesignPreviewScreen ? (
             <Stack.Screen name="DesignPreview" component={DesignPreviewScreen} options={{ title: 'Design system' }} />
+          ) : null}
+          {AdapterSimulatorScreen ? (
+            <Stack.Screen name="AdapterSimulator" component={AdapterSimulatorScreen} options={{ title: 'Adapter simulator' }} />
           ) : null}
         </>
       )}
