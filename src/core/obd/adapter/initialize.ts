@@ -1,6 +1,6 @@
-import type { AdapterErrorCode } from './errors';
+import { elmErrorToAdapterError, type AdapterErrorCode } from './errors';
 import type { Elm327Client } from './Elm327Client';
-import { compactHex, type CommandResult } from './responses';
+import { compactHex } from './responses';
 
 export type AdapterInfo = {
   /** What the adapter claims. Cheap clones often fake this, so never rely on it. */
@@ -42,22 +42,6 @@ export function parseProtocolNumber(line: string | undefined): string | null {
 
 const fail = (error: AdapterErrorCode): InitResult => ({ ok: false, error });
 
-function probeError(result: Extract<CommandResult, { ok: false }>): AdapterErrorCode {
-  switch (result.error) {
-    case 'UNABLE_TO_CONNECT':
-    case 'NO_DATA':
-      return 'VEHICLE_NOT_RESPONDING';
-    case 'BUS_ERROR':
-      return 'BUS_ERROR';
-    case 'TIMEOUT':
-      return 'ADAPTER_TIMEOUT';
-    case 'DISCONNECTED':
-      return 'DISCONNECTED';
-    default:
-      return 'MALFORMED';
-  }
-}
-
 /**
  * Brings an ELM327 into a known state, then proves the car answers.
  * Distinguishes "the device is not an adapter" from "the adapter is fine but the car is silent".
@@ -85,7 +69,7 @@ export async function initializeAdapter(
   // 3. Prove the car answers. The first request can take several seconds while the adapter
   //    searches for the protocol.
   const probe = await client.send('0100', { timeoutMs: t.probe });
-  if (!probe.ok) return fail(probeError(probe));
+  if (!probe.ok) return fail(elmErrorToAdapterError(probe.error));
   if (!probe.lines.some((line) => compactHex(line).includes('4100'))) return fail('MALFORMED');
 
   // 4. Which protocol did it pick? Nice to know, never required.

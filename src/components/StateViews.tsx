@@ -67,12 +67,17 @@ export function ErrorState(props: StateProps) {
 }
 
 /** Loading state: skeletons only while data is genuinely being fetched. */
-export function LoadingState({ label = 'Loading' }: { label?: string }) {
+export function LoadingState({ label = 'Loading', message }: { label?: string; message?: string }) {
   return (
     <View style={styles.center} accessibilityRole="progressbar" accessibilityLabel={label}>
       <Skeleton width="60%" height={20} />
       <Skeleton width="80%" height={14} />
       <Skeleton width="50%" height={14} />
+      {message ? (
+        <Text tone="secondary" style={styles.centerText}>
+          {message}
+        </Text>
+      ) : null}
     </View>
   );
 }

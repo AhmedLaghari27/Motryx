@@ -21,6 +21,15 @@ export type SimOptions = {
   failNextConnects?: number;
   /** Per-command reply delay, to simulate a slow ECU. */
   slowCommands?: Record<string, number>;
+  /** Override the supported-PID bitmap for a range command such as "0120". null = the car does not answer. */
+  bitmaps?: Record<string, number[] | null>;
+};
+
+/** A typical petrol car: 24 supported PIDs across three ranges (see the discovery tests). */
+const DEFAULT_BITMAPS: Record<string, number[]> = {
+  '0100': [0xbe, 0x1f, 0xa8, 0x13],
+  '0120': [0x80, 0x02, 0xa0, 0x01],
+  '0140': [0x44, 0x00, 0x00, 0x14],
 };
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -188,10 +197,15 @@ export class SimulatedElm327Transport implements Transport {
     if (c.startsWith('01') && this.options.scenario === 'ignition-off') return 'SEARCHING...\rUNABLE TO CONNECT';
 
     const search = this.searched ? '' : 'SEARCHING...\r';
+    const overrides = this.options.bitmaps;
+    if (overrides && c in overrides && overrides[c] === null) return 'NO DATA';
+    const bitmap = overrides?.[c] ?? DEFAULT_BITMAPS[c];
+    if (bitmap) {
+      const first = c === '0100' ? search : '';
+      if (c === '0100') this.searched = true;
+      return first + this.hex([0x41, parseInt(c.slice(2), 16), ...bitmap]);
+    }
     switch (c) {
-      case '0100':
-        this.searched = true;
-        return search + this.hex([0x41, 0x00, 0xbe, 0x1f, 0xa8, 0x13]);
       case '0105':
         return this.hex([0x41, 0x05, 0x7b]);
       case '010C':
