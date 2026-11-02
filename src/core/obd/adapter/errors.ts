@@ -1,4 +1,5 @@
 import { TransportError } from '../transports/Transport';
+import type { ElmErrorCode } from './responses';
 
 /** What went wrong, from the person's point of view. */
 export type AdapterErrorCode =
@@ -98,4 +99,21 @@ export function mapTransportError(error: unknown): AdapterError {
     return { code: byCode[error.code], message: error.message };
   }
   return { code: 'UNKNOWN', message: error instanceof Error ? error.message : String(error) };
+}
+
+/** Maps an error from a command the car did not answer properly to what the person should see. */
+export function elmErrorToAdapterError(error: ElmErrorCode): AdapterErrorCode {
+  switch (error) {
+    case 'UNABLE_TO_CONNECT':
+    case 'NO_DATA':
+      return 'VEHICLE_NOT_RESPONDING';
+    case 'BUS_ERROR':
+      return 'BUS_ERROR';
+    case 'TIMEOUT':
+      return 'ADAPTER_TIMEOUT';
+    case 'DISCONNECTED':
+      return 'DISCONNECTED';
+    default:
+      return 'MALFORMED';
+  }
 }

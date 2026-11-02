@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ConnectionManager } from '@/core/obd/adapter/ConnectionManager';
 import { describeAdapterError } from '@/core/obd/adapter/errors';
 import { Button, Card, ConnectionBadge, Screen, Text } from '@/components';
 import { useConnectionStore } from '@/state/connection.store';
 import { spacing } from '@/theme/tokens';
-import { SimulatedElm327Transport, type SimScenario } from './SimulatedElm327Transport';
+import { getDevAdapter } from './devAdapter';
+import type { SimScenario } from './SimulatedElm327Transport';
 
 const SCENARIOS: { id: SimScenario; label: string }[] = [
   { id: 'healthy', label: 'Healthy car' },
@@ -13,12 +13,11 @@ const SCENARIOS: { id: SimScenario; label: string }[] = [
   { id: 'silent', label: 'Not an adapter' },
 ];
 
-const TARGET = { id: 'simulated', name: 'Simulated ELM327', kind: 'ble' } as const;
+const TARGET = { id: 'simulated', name: 'Simulated ELM327', kind: 'ble', simulated: true } as const;
 
 /** Developer-only. Exercises the real connection code against a fake adapter, so no hardware is needed. */
 export default function AdapterSimulatorScreen() {
-  const [sim] = useState(() => new SimulatedElm327Transport({ latencyMs: 250, connectDelayMs: 700, chunkSize: 8 }));
-  const [manager] = useState(() => new ConnectionManager(sim, { backoffMs: [1000, 2000, 4000] }));
+  const [{ sim, manager }] = useState(getDevAdapter);
   const [scenario, setScenario] = useState<SimScenario>('healthy');
   const [log, setLog] = useState<string[]>([]);
 
@@ -28,17 +27,12 @@ export default function AdapterSimulatorScreen() {
   const attempt = useConnectionStore((s) => s.attempt);
 
   useEffect(() => {
-    const store = useConnectionStore.getState();
-    store.attach(manager);
-    const stopLog = manager.subscribe((snap) => {
+    // The connection stays alive after leaving this screen, so Live Data can show what was found.
+    useConnectionStore.getState().attach(manager);
+    return manager.subscribe((snap) => {
       const extra = snap.attempt > 0 ? ` (attempt ${snap.attempt})` : snap.error ? ` (${snap.error.code})` : '';
       setLog((prev) => [`${snap.state}${extra}`, ...prev].slice(0, 12));
     });
-    return () => {
-      stopLog();
-      void manager.disconnect();
-      useConnectionStore.getState().detach();
-    };
   }, [manager]);
 
   const busy = state === 'connecting' || state === 'initializing' || state === 'reconnecting';
@@ -52,7 +46,8 @@ export default function AdapterSimulatorScreen() {
   return (
     <Screen scroll>
       <Text tone="secondary">
-        A fake adapter for trying the real connection code. Nothing here is real car data.
+        A fake adapter for trying the real connection code. Nothing here is real car data. After
+        connecting, go back and open the Live Data tab to see the sensors it found.
       </Text>
       <ConnectionBadge />
 

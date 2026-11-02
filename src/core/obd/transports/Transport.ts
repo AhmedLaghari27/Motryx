@@ -1,7 +1,13 @@
 export type AdapterKind = 'ble' | 'classic' | 'wifi';
 
 /** Where to connect. Bluetooth uses a device id; Wi-Fi uses "host:port". */
-export type AdapterTarget = { id: string; name: string | null; kind: AdapterKind };
+export type AdapterTarget = {
+  id: string;
+  name: string | null;
+  kind: AdapterKind;
+  /** True only for the developer simulator, so the UI can say the data is not real. */
+  simulated?: boolean;
+};
 
 export type Unsubscribe = () => void;
 
