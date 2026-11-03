@@ -3,6 +3,7 @@ import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useOnboardingStore } from '@/state/onboarding.store';
+import { usePreferencesStore } from '@/state/preferences.store';
 import { useVehicleStore } from '@/state/vehicle.store';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { RootNavigator } from './navigation';
@@ -11,11 +12,13 @@ function ThemedApp() {
   const { mode, colors } = useTheme();
   const hydrate = useOnboardingStore((s) => s.hydrate);
   const loadVehicles = useVehicleStore((s) => s.load);
+  const hydratePreferences = usePreferencesStore((s) => s.hydrate);
 
   useEffect(() => {
     void hydrate();
+    void hydratePreferences();
     void loadVehicles(); // opens the database and applies migrations at startup
-  }, [hydrate, loadVehicles]);
+  }, [hydrate, hydratePreferences, loadVehicles]);
 
   const navTheme = useMemo(() => {
     const base = mode === 'night' ? DarkTheme : DefaultTheme;

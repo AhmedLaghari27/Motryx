@@ -1,4 +1,6 @@
 // DEV ONLY: a fake ELM327 for tests and the developer simulator. Never used for real readings.
+import { bitmapToPids } from '@/core/obd/discovery/pidBitmap';
+import { simulatedBytes } from './simulatedVehicle';
 import {
   TransportError,
   type AdapterKind,
@@ -8,7 +10,7 @@ import {
   type Unsubscribe,
 } from '@/core/obd/transports/Transport';
 
-export type SimScenario = 'healthy' | 'ignition-off' | 'silent';
+export type SimScenario = 'healthy' | 'ignition-off' | 'silent' | 'flaky';
 
 export type SimOptions = {
   scenario?: SimScenario;
@@ -23,6 +25,10 @@ export type SimOptions = {
   slowCommands?: Record<string, number>;
   /** Override the supported-PID bitmap for a range command such as "0120". null = the car does not answer. */
   bitmaps?: Record<string, number[] | null>;
+  /** Answer supported sensors with moving, believable values instead of fixed ones. */
+  liveValues?: boolean;
+  /** Time source for the moving values, so tests can be deterministic. */
+  clock?: () => number;
 };
 
 /** A typical petrol car: 24 supported PIDs across three ranges (see the discovery tests). */
@@ -45,6 +51,7 @@ export class SimulatedElm327Transport implements Transport {
   private echo = true;
   private spaces = true;
   private searched = false;
+  private connectedAt = 0;
   private buffer = '';
   private inFlight: ReturnType<typeof setTimeout> | null = null;
   private readonly dataListeners = new Set<(chunk: string) => void>();
@@ -75,6 +82,7 @@ export class SimulatedElm327Transport implements Transport {
       throw new TransportError('CONNECTION_REFUSED', 'Simulated refusal');
     }
     this.connected = true;
+    this.connectedAt = (this.options.clock ?? Date.now)();
     this.echo = true;
     this.spaces = true;
     this.searched = false;
@@ -157,6 +165,14 @@ export class SimulatedElm327Transport implements Transport {
     }
   }
 
+  /** Does the simulated car's bitmap list this PID? A real car answers NO DATA for the rest. */
+  private supports(pid: number): boolean {
+    const base = pid - (pid % 0x20 === 0 ? 0x20 : pid % 0x20);
+    const key = `01${base.toString(16).toUpperCase().padStart(2, '0')}`;
+    const bitmap = this.options.bitmaps?.[key] ?? DEFAULT_BITMAPS[key];
+    return bitmap ? bitmapToPids(base, bitmap).includes(pid) : false;
+  }
+
   private hex(bytes: number[]): string {
     const parts = bytes.map((b) => b.toString(16).toUpperCase().padStart(2, '0'));
     return this.spaces ? `${parts.join(' ')} ` : parts.join('');
@@ -204,6 +220,17 @@ export class SimulatedElm327Transport implements Transport {
       const first = c === '0100' ? search : '';
       if (c === '0100') this.searched = true;
       return first + this.hex([0x41, parseInt(c.slice(2), 16), ...bitmap]);
+    }
+    if (this.options.liveValues) {
+      const match = /^01([0-9A-F]{2})$/.exec(c);
+      if (match) {
+        const pid = parseInt(match[1] ?? '', 16);
+        const flaky = this.options.scenario === 'flaky' && (pid === 0x0f || pid === 0x5c);
+        if (flaky || !this.supports(pid)) return 'NO DATA';
+        const now = (this.options.clock ?? Date.now)();
+        const bytes = simulatedBytes(pid, now, Math.floor((now - this.connectedAt) / 1000));
+        return bytes ? this.hex([0x41, pid, ...bytes]) : 'NO DATA';
+      }
     }
     switch (c) {
       case '0105':

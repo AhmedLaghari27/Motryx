@@ -1,5 +1,5 @@
 import type { Reading } from '@/types/telemetry';
-import { formatNumber } from './units';
+import { convertForDisplay, formatNumber, type UnitSystem } from './units';
 
 export type ReadingView = {
   valueText: string;
@@ -64,4 +64,11 @@ export function describeReading(reading: Reading, now: number, decimals = 0): Re
         emphasized: false,
       };
   }
+}
+
+/** A copy of the reading in the person's units. Only numbers that are shown (live or stale) are converted. */
+export function toDisplayReading(reading: Reading, system: UnitSystem): Reading {
+  if (typeof reading.value !== 'number' || (reading.status !== 'live' && reading.status !== 'stale')) return reading;
+  const converted = convertForDisplay(reading.unit, reading.value, system);
+  return { ...reading, value: converted.value, unit: converted.unit };
 }

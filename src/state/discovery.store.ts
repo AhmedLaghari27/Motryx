@@ -3,6 +3,7 @@ import type { AdapterError } from '@/core/obd/adapter/errors';
 import type { ConnectionManager } from '@/core/obd/adapter/ConnectionManager';
 import type { VehicleCapabilities } from '@/core/obd/discovery/capabilities';
 import { discoverSupportedPids, RANGE_BASES } from '@/core/obd/discovery/discover';
+import { poller } from '@/core/telemetry/instances';
 
 type Status = 'idle' | 'discovering' | 'ready' | 'error';
 
@@ -30,6 +31,7 @@ export const useDiscoveryStore = create<DiscoveryStore>((set, get) => {
 
   const reset = () => {
     generation += 1;
+    poller.setSupported([]); // nothing is polled until the car has said what it supports
     set({ ...EMPTY, warnings: [] });
   };
 
@@ -46,7 +48,10 @@ export const useDiscoveryStore = create<DiscoveryStore>((set, get) => {
     });
     if (mine !== generation) return;
 
-    if (result.ok) set({ status: 'ready', capabilities: result.capabilities, warnings: result.warnings });
+    if (result.ok) {
+      poller.setSupported(result.capabilities.supportedPids);
+      set({ status: 'ready', capabilities: result.capabilities, warnings: result.warnings });
+    }
     else set({ status: 'error', error: { code: result.error } });
   };
 

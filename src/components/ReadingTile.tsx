@@ -16,7 +16,7 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-const VALUE_TONE: Record<ReadingStatus, TextTone> = {
+export const VALUE_TONE: Record<ReadingStatus, TextTone> = {
   live: 'primary',
   stale: 'stale',
   unsupported: 'disabled',

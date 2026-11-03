@@ -6,12 +6,15 @@ import type { RootStackParamList } from '@/app/routes';
 import { Button, Card, Screen, Text } from '@/components';
 import { PermissionsSection } from '@/features/permissions/PermissionsSection';
 import { useOnboardingStore } from '@/state/onboarding.store';
+import { usePreferencesStore } from '@/state/preferences.store';
 import { useTheme } from '@/theme/ThemeProvider';
 import { spacing } from '@/theme/tokens';
 
 export function SettingsScreen() {
   const { mode, setMode } = useTheme();
   const reopenOnboarding = useOnboardingStore((s) => s.reopen);
+  const unitSystem = usePreferencesStore((s) => s.prefs.unitSystem);
+  const setUnitSystem = usePreferencesStore((s) => s.setUnitSystem);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
@@ -32,6 +35,25 @@ export function SettingsScreen() {
             label="Daylight"
             variant={mode === 'daylight' ? 'primary' : 'secondary'}
             onPress={() => setMode('daylight')}
+            style={styles.flex}
+          />
+        </View>
+      </Card>
+
+      <Text variant="title">Units</Text>
+      <Card>
+        <Text tone="secondary">Metric shows °C, km/h and kPa. Imperial shows °F, mph and psi.</Text>
+        <View style={styles.row}>
+          <Button
+            label="Metric"
+            variant={unitSystem === 'metric' ? 'primary' : 'secondary'}
+            onPress={() => setUnitSystem('metric')}
+            style={styles.flex}
+          />
+          <Button
+            label="Imperial"
+            variant={unitSystem === 'imperial' ? 'primary' : 'secondary'}
+            onPress={() => setUnitSystem('imperial')}
             style={styles.flex}
           />
         </View>
