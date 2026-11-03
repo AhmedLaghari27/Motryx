@@ -11,6 +11,7 @@ const SCENARIOS: { id: SimScenario; label: string }[] = [
   { id: 'healthy', label: 'Healthy car' },
   { id: 'ignition-off', label: 'Ignition off' },
   { id: 'silent', label: 'Not an adapter' },
+  { id: 'flaky', label: 'Flaky sensors' },
 ];
 
 const TARGET = { id: 'simulated', name: 'Simulated ELM327', kind: 'ble', simulated: true } as const;
@@ -52,14 +53,14 @@ export default function AdapterSimulatorScreen() {
       <ConnectionBadge />
 
       <Text variant="title">Scenario</Text>
-      <View style={styles.row}>
+      <View style={styles.wrap}>
         {SCENARIOS.map((s) => (
           <Button
             key={s.id}
             label={s.label}
             variant={scenario === s.id ? 'primary' : 'secondary'}
             onPress={() => chooseScenario(s.id)}
-            style={styles.flex}
+            style={styles.chip}
           />
         ))}
       </View>
@@ -104,6 +105,6 @@ export default function AdapterSimulatorScreen() {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing.sm },
-  flex: { flex: 1 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  chip: { minWidth: '47%', flexGrow: 1 },
 });

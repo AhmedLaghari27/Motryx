@@ -26,3 +26,20 @@ export function formatNumber(value: number, decimals = 0): string {
   const text = value.toFixed(decimals);
   return Number(text) === 0 ? (0).toFixed(decimals) : text;
 }
+
+/** Converts a canonical (metric) sensor value for display. Units without an imperial form are unchanged. */
+export function convertForDisplay(unit: string, value: number, system: UnitSystem): Converted {
+  if (system === 'metric') return { value, unit };
+  switch (unit) {
+    case '°C':
+      return convertTemperature(value, 'imperial');
+    case 'km/h':
+      return convertSpeed(value, 'imperial');
+    case 'kPa':
+      return convertPressure(value, 'imperial');
+    case 'km':
+      return { value: value / KMH_PER_MPH, unit: 'mi' };
+    default:
+      return { value, unit };
+  }
+}

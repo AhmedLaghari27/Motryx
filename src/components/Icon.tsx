@@ -14,12 +14,14 @@ export type IconName =
   | 'location'
   | 'shield'
   | 'adapter'
-  | 'check';
+  | 'check'
+  | 'star'
+  | 'plus';
 
-type Props = { name: IconName; size?: number; color?: string; strokeWidth?: number };
+type Props = { name: IconName; size?: number; color?: string; strokeWidth?: number; filled?: boolean };
 
 /** Small stroke icon set drawn with SVG, so the app needs no icon font dependency. */
-export function Icon({ name, size = 24, color, strokeWidth = 1.8 }: Props) {
+export function Icon({ name, size = 24, color, strokeWidth = 1.8, filled = false }: Props) {
   const { colors } = useTheme();
   const stroke = color ?? colors.textPrimary;
   const common = {
@@ -105,6 +107,18 @@ export function Icon({ name, size = 24, color, strokeWidth = 1.8 }: Props) {
           <Path d="M9.5 10h.01M12 10h.01M14.5 10h.01M12 17v4" {...common} />
         </>
       );
+      break;
+    case 'star':
+      shapes = (
+        <Path
+          d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"
+          {...common}
+          fill={filled ? stroke : 'none'}
+        />
+      );
+      break;
+    case 'plus':
+      shapes = <Path d="M12 5v14M5 12h14" {...common} />;
       break;
     case 'check':
       shapes = <Path d="M5 12.5l4.5 4.5L19 7.5" {...common} />;

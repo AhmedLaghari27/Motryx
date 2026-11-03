@@ -104,6 +104,12 @@ export const MODE01_SENSORS: readonly SensorDef[] = [
 
 const BY_PID = new Map<number, SensorDef>(MODE01_SENSORS.map((s) => [s.pid, s]));
 
+const BY_ID = new Map<string, SensorDef>(MODE01_SENSORS.map((s) => [s.id, s]));
+
 export function getSensorByPid(pid: number): SensorDef | null {
   return BY_PID.get(pid) ?? null;
+}
+
+export function getSensorById(id: string): SensorDef | null {
+  return BY_ID.get(id) ?? null;
 }

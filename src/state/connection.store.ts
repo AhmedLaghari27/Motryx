@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { ConnectionManager } from '@/core/obd/adapter/ConnectionManager';
 import { INITIAL_SNAPSHOT, type ConnectionSnapshot } from '@/core/obd/adapter/connectionMachine';
+import { bindTelemetry, unbindTelemetry } from '@/core/telemetry/instances';
 import { useDiscoveryStore } from './discovery.store';
 
 type ConnectionStore = ConnectionSnapshot & {
@@ -21,12 +22,14 @@ export const useConnectionStore = create<ConnectionStore>((set) => ({
     set(manager.getSnapshot());
     unsubscribe = manager.subscribe((snapshot) => set(snapshot));
     useDiscoveryStore.getState().bind(manager); // sensor discovery follows the connection
+    bindTelemetry(manager); // so does polling
   },
   detach: () => {
     unsubscribe?.();
     unsubscribe = null;
     attached = null;
     useDiscoveryStore.getState().unbind();
+    unbindTelemetry();
     set(INITIAL_SNAPSHOT);
   },
 }));

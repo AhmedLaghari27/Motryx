@@ -1,8 +1,10 @@
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
+export { Chip } from './Chip';
 export { ConnectionBadge } from './ConnectionBadge';
 export { Icon, type IconName } from './Icon';
+export { IconButton } from './IconButton';
 export { ReadingStatusPill } from './ReadingStatusPill';
 export { ReadingTile } from './ReadingTile';
 export { Screen } from './Screen';

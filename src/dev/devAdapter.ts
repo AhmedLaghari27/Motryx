@@ -9,7 +9,7 @@ let instance: DevAdapter | null = null;
 
 export function getDevAdapter(): DevAdapter {
   if (!instance) {
-    const sim = new SimulatedElm327Transport({ latencyMs: 250, connectDelayMs: 700, chunkSize: 8 });
+    const sim = new SimulatedElm327Transport({ latencyMs: 60, connectDelayMs: 700, chunkSize: 8, liveValues: true });
     instance = { sim, manager: new ConnectionManager(sim, { backoffMs: [1000, 2000, 4000] }) };
   }
   return instance;
